@@ -1,0 +1,26 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+class ArrayElementsEqualToTheirIndex
+{
+    static void Main(string[] args)
+    {
+        int[] input = Console.ReadLine().Split(' ').Select(int.Parse).ToArray();
+        List<int> result = new List<int>();
+        for (int i = 1; i < input.Length; i++)
+        {
+            if (input[i - 1] == 0)
+            {
+                result.Add(input[i - 1]);
+            }
+            if (i == input[i])
+            {
+                result.Add(input[i]);
+            }
+        }
+        result = result.Distinct().ToList();
+        Console.WriteLine(String.Join(" ", result));
+    }
+}

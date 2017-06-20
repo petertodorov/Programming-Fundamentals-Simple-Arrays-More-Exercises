@@ -1,0 +1,147 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        List<string> phoneNumberList = Console.ReadLine().Split(' ').ToList();
+        List<string> nameList = Console.ReadLine().Split(' ').ToList();
+        
+        string currentPhone = string.Empty;
+        int phoneIndex = new int();
+        int nameIndex = new int();
+        string phoneToWrite = string.Empty;
+        string nameToWrite = string.Empty;
+        List<string> callTo = Console.ReadLine().Split(' ').ToList();
+
+        while (callTo[0] != "done")
+        {
+            nameToWrite = FindPhoneIndex(ref currentPhone, phoneNumberList, callTo, phoneIndex, nameList, nameIndex);
+            phoneToWrite = FindNameIndex(phoneIndex, ref currentPhone, callTo, nameIndex, nameList, phoneNumberList);
+            if (callTo[0] == "call")
+            {
+                WriteCalling(phoneNumberList, callTo, nameToWrite, nameList, phoneToWrite);
+                WriteResponesForCall(currentPhone);
+            }
+            else if (callTo[0] == "message")
+            {
+                WriteMessage(phoneNumberList, callTo, nameToWrite, nameList, phoneToWrite);
+                WriteResponsesForMessages(currentPhone);
+            }
+
+            callTo = Console.ReadLine().Split(' ').ToList();
+        }
+    }
+
+    private static void WriteResponsesForMessages(string currentPhone)
+    {
+        var toRemove = new Regex("[ ( ) + -]");
+        currentPhone = toRemove.Replace(currentPhone, "");
+        long toExtract = long.Parse(currentPhone);
+        long differnce = new long();
+        long lastDigit = new long();
+        while (toExtract > 0)
+        {
+            lastDigit = toExtract% 10;
+            differnce -= lastDigit;
+            toExtract = toExtract/ 10;
+        }
+        differnce = Math.Abs(differnce);
+        if (differnce%2 == 0)
+        {
+            Console.WriteLine($"meet me there");
+        }
+        else if (differnce % 2 == 1)
+        {
+            Console.WriteLine("busy");
+        }
+    }
+
+    private static void WriteResponesForCall(string currentPhone)
+    {
+
+        var toRemove = new Regex("[ ( ) + -]");
+        currentPhone = toRemove.Replace(currentPhone, "");
+        long toSum = long.Parse(currentPhone);
+        long summed = 0;
+        long lastDigit = new int();
+        while (toSum > 0)
+        {
+            lastDigit = toSum % 10;
+            summed += lastDigit;
+            toSum = toSum / 10;
+        }
+        if (summed % 2 == 0)
+        {
+           int minutes = (int)summed / 60;
+            int seconds = (int)summed % 60;
+               Console.WriteLine($"call ended. duration: {minutes:00}:{seconds:00}");
+        }
+        else if (summed % 2 == 1)
+        {
+            Console.WriteLine("no answer");
+        }
+    }
+
+    private static void WriteMessage(List<string> phoneNumberList, List<string> callTo, string nameToWrite, List<string> nameList, string phoneToWrite)
+    {
+        if (phoneNumberList.Contains(callTo[1]))
+        {
+            Console.WriteLine($"sending sms to {nameToWrite}...");
+        }
+        else if (nameList.Contains(callTo[1]))
+        {
+            Console.WriteLine($"sending sms to {phoneToWrite}...");
+        }
+    }
+
+    private static void WriteCalling(List<string> phoneNumberList, List<string> callTo, string nameToWrite, List<string> nameList, string phoneToWrite)
+    {
+        if (phoneNumberList.Contains(callTo[1]))
+        {
+            Console.WriteLine($"calling {nameToWrite}...");
+        }
+        else if (nameList.Contains(callTo[1]))
+        {
+            Console.WriteLine($"calling {phoneToWrite}...");
+        }
+    }
+
+    private static string FindNameIndex(int phoneIndex,ref string currentPhone, List<string> callTo, int nameIndex, List<string> nameList, List<string> phoneNumberList)
+    {
+        string phoneToWrite = "";
+        if (nameList.Contains(callTo[1]))
+        {
+            nameIndex = nameList.FindIndex(a => a == callTo[1]);
+            phoneToWrite = phoneNumberList[nameIndex];
+            currentPhone = phoneToWrite;
+        }
+        else
+        {
+            FindPhoneIndex(ref currentPhone, phoneNumberList, callTo, phoneIndex, nameList, nameIndex);
+        }
+        
+        return phoneToWrite;
+    }
+
+    private static string FindPhoneIndex(ref string currentPhone, List<string> phoneNumberList, List<string> callTo, int phoneIndex, List<string> nameList, int nameIndex)
+    {
+        string nameToWrite = "";
+        if (phoneNumberList.Contains(callTo[1]))
+        {
+            phoneIndex = phoneNumberList.FindIndex(a => a == callTo[1]);
+            currentPhone = phoneNumberList[phoneIndex];
+            nameToWrite = nameList[phoneIndex];
+        }
+        else
+        {
+            FindNameIndex(phoneIndex, ref currentPhone, callTo, nameIndex, nameList, phoneNumberList);
+        }
+        return nameToWrite;
+    }
+}
